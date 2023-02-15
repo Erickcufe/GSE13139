@@ -29,7 +29,7 @@ x <- hgu133plus2SYMBOL
 # Get the probe identifiers that are mapped to a gene symbol
 mapped_probes <- mappedkeys(x)
 # Convert to a list
-xx <- as.list(x[mapped_probes][1:300])
+xx <- as.list(x[mapped_probes][1:30000])
 if(length(xx) > 0) {
   # Get the SYMBOL for the first five probes
   xx[1:5]
@@ -44,6 +44,21 @@ if(length(xx) > 0) {
 # y cada columna es una condicion o muestra distinta.
 
 # Estas anotaciones se colocan en fData(gset)
+
+# ANALISIS DIFERENCIAL COMUN
+library(limma)
+exprs_mat <- as.matrix(exprs)
+sample_info <- pData(gse[[1]])
+
+design <- model.matrix(~sample_info$characteristics_ch1)
+fit <- lmFit(exprs_mat, design)
+
+contrast <- makeContrasts(Group1-Group2, levels=design)
+fit2 <- contrasts.fit(fit, contrast)
+fit2 <- eBayes(fit2)
+results <- topTable(fit2, coef=1, adjust.method="BH", sort.by="P", number=Inf)
+
+
 
 
 
